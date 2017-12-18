@@ -11,7 +11,7 @@ public class TextSorter {
         char character;
 
         StringBuilder stringBuilder = new StringBuilder();
-       final Map<String, Integer> map = new HashMap();
+       final Map<String, Integer> unsortedDictionary = new HashMap();
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
         try {
@@ -19,6 +19,7 @@ public class TextSorter {
             outputStream = new FileOutputStream("out_for_sorting.csv");
             Reader r = new InputStreamReader(new BufferedInputStream(inputStream), "cp1251");
 
+            // пока не кончится файл...
             while ((symbol = r.read()) != -1) {
                 character = (char) symbol;
 
@@ -28,30 +29,30 @@ public class TextSorter {
                     stringBuilder.append(character);
                 } else if (stringBuilder.length() != 0) {
                     String key = stringBuilder.toString();
-                    Integer frequency = map.get(key);
-                    map.put(key, (frequency == null ? 1 : frequency + 1));
+                    Integer frequency = unsortedDictionary.get(key);
+                    unsortedDictionary.put(key, (frequency == null ? 1 : frequency + 1));
                     stringBuilder.setLength(0);
                     size++;
                 }
             }
             System.out.println(size);
 
-            final List<String> list = new ArrayList<>(map.keySet());
+            final List<String> sortedDictionary = new ArrayList<>(unsortedDictionary.keySet());
 
-            Collections.sort(list, new Comparator<String>() {
+            Collections.sort(sortedDictionary, new Comparator<String>() {
 
                 public int compare(String o1, String o2) {
-                    int r = map.get(o2).compareTo(map.get(o1));
-                    if (map.get(o2).compareTo(map.get(o1)) == 0)
+                    int r = unsortedDictionary.get(o2).compareTo(unsortedDictionary.get(o1));
+                    if (unsortedDictionary.get(o2).compareTo(unsortedDictionary.get(o1)) == 0)
                         r = o1.compareTo(o2);
                     return r;
                 }
             });
 
             PrintWriter out = new PrintWriter(new OutputStreamWriter(outputStream, "cp1251"));
-            for (Iterator<String> it = list.iterator(); it.hasNext(); ) {
+            for (Iterator<String> it = sortedDictionary.iterator(); it.hasNext(); ) {
                 String it_value = it.next();
-                int freq = map.get(it_value);
+                int freq = unsortedDictionary.get(it_value);
                 float freq_proc = 100.0f * freq / size;
                 out.write(it_value);
                 out.write(";");
